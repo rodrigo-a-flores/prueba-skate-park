@@ -1,0 +1,108 @@
+<h1>Skate Park</h1>
+<div class="py-4">
+    <h2>Registro</h2>
+    <hr class="w-50" />
+
+    <form class="register" action="/skaters" method="POST">
+        <div class="form-group row w-50 m-auto">
+            <div class="form-group col-12 col-sm-6">
+                <label>Email</label>
+                <input class="form-control m-auto" id="txtEmail" name="txtEmail"/>
+            </div>
+            <div class="form-group col-12 col-sm-6">
+                <label>Nombre</label>
+                <input class="form-control m-auto" id="txtNombre" name="txtNombre"/>
+            </div>
+            <div class="form-group col-12 col-sm-6">
+                <label>Password</label>
+                <input class="form-control m-auto" id="txtPassword1" name="txtPassword1"/>
+            </div>
+            <div class="form-group col-12 col-sm-6">
+                <label>Repita la password</label>
+                <input class="form-control m-auto" id="txtPassword2" name="txtPassword2"/>
+            </div>
+            <div class="form-group col-12 col-sm-6">
+                <label>Años de experiencia</label>
+                <input class="form-control m-auto" id="txtExperiencia" name="txtExperiencia"/>
+            </div>
+            <div class="form-group col-12 col-sm-6">
+                <label>Especialidad</label>
+                <input class="form-control m-auto" id="txtEspecialidad" name="txtEspecialidad"/>
+            </div>
+            <div class="form-group col-12 col-sm-12">
+                <label>Foto de perfil</label>
+                <input type="file" id="Foto" name="Foto"/>
+            </div>
+        </div>
+        <button class="btn btn-info mb-3">Registrarme</button>
+    </form>
+    <p><a href="/login"> Iniciar sesión</a></p>
+</div>
+<script>    
+        const getSkaters = async function() {
+        try {
+            const {data} = await axios.get("http://localhost:10000/skaters");
+            $(".skaters").html("");
+            for (const skater of data) {
+                estado = skater.estado === true;
+                if (estado === true) {
+                    estado = "Aprobado";
+                    $(".skaters").append(`
+                        <tr>
+                            <td>${skater.id}</td>
+                            <td><img src="${skater.foto}" alt="Foto de ${skater.nombre}" width="100" name="foo" type="file"></td>
+                            <td>${skater.nombre}</td>
+                            <td>${skater.anos_experiencia}</td>
+                            <td>${skater.especialidad}</td>
+                            <td class="text-success font-weight-bold">${estado}</td>
+                        </tr>
+                    `);
+                }else if(estado === false) {
+                    estado = "En revision";
+                    $(".skaters").append(`
+                    <tr>
+                        <td>${skater.id}</td>
+                        <td><img src="${skater.foto}" alt="Foto de ${skater.nombre}" width="100"></td>
+                        <td>${skater.nombre}</td>
+                        <td>${skater.anos_experiencia}</td>
+                        <td>${skater.especialidad}</td>
+                        <td class="text-warning font-weight-bold">${estado}</td>
+                    </tr>
+                `);
+                }                    
+            }                
+        } catch (e) {
+            console.error("Error al obtener skaters:", e);
+            alert("Algo salió mal al obtener skaters");
+        }
+    };
+        $(".register").on("submit", async function(event) {
+            event.preventDefault();
+            // Capturar los datos del formulario        
+            const email = $(".register #txtEmail").val();
+            const nombre = $(".register #txtNombre").val();
+            const password = $(".register #txtPassword1").val();
+            const experiencia = $(".register #txtExperiencia").val();
+            const especialidad = $(".register #txtEspecialidad").val();
+            try {
+                // Enviar una solicitud POST al servidor con los datos del nuevo skater
+                const response = await axios.post("http://localhost:10000/skaters", {
+                    email: email,
+                    nombre: nombre,
+                    password: password,
+                    anos_experiencia: experiencia,
+                    especialidad: especialidad
+                });
+                await getSkaters();
+
+                $(".register")[0].reset();
+                alert("Skater registrado exitosamente") 
+                window.location.href = "/";
+                
+
+            } catch (e) {
+                console.error("Error al registrar skater:", e);
+                alert("Algo salió mal al registrar el skater");
+            }
+        });
+</script>

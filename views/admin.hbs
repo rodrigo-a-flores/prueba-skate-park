@@ -1,0 +1,57 @@
+<script>
+    function actualizarEstadoSkater(skaterId, nuevoEstado) {
+        fetch(`/skaters/${skaterId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ estado: nuevoEstado })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('No se pudo actualizar el estado del skater');
+            }
+            window.location('/');
+        })
+        .catch(error => {
+            console.error('Error al actualizar el estado del skater:', error);
+        });
+    }
+</script>
+
+<h1>Skate Park</h1>
+
+<div class="py-4">
+    <h2>Administración</h2>
+    <hr class="w-50" />
+
+    <table class="table w-50 m-auto">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Foto</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Años de experiencia</th>
+                <th scope="col">Especialidad</th>
+                <th scope="col">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each skaters}}
+            <tr>
+                <th scope="row">{{@index}}</th>
+                <td>
+                    <div></div>
+                </td>
+                <td>{{this.nombre}}</td>
+                <td>{{this.anos_experiencia}}</td>
+                <td>{{this.especialidad}}</td>
+                <td>
+                    <input type="checkbox" id="skaterCheckbox-{{this.id}}" {{#if this.estado}}checked{{/if}} 
+                        onchange="actualizarEstadoSkater('{{this.id}}', this.checked)" />
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
