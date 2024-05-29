@@ -29,9 +29,9 @@
                 <label>Especialidad</label>
                 <input class="form-control m-auto" id="txtEspecialidad" name="txtEspecialidad"/>
             </div>
-            <div class="form-group col-12 col-sm-12">
-                <label>Foto de perfil</label>
-                <input type="file" id="Foto" name="Foto"/>
+            <div class="form-group">
+                <label>Imagen:</label>
+                <input type="file" class="form-control" id="foto" name="foto" required>
             </div>
         </div>
         <button class="btn btn-info mb-3">Registrarme</button>
@@ -76,22 +76,61 @@
             alert("Algo salió mal al obtener skaters");
         }
     };
+    
+
+
         $(".register").on("submit", async function(event) {
             event.preventDefault();
-            // Capturar los datos del formulario        
+
+            const email = $("#txtEmail").val();
+            const nombre = $("#txtNombre").val();
+            const password = $("#txtPassword1").val();
+            const anos_experiencia = $("#txtExperiencia").val();
+            const especialidad = $("#txtEspecialidad").val();
+            const foto = $("#foto")[0].files[0];
+
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('nombre', nombre);
+            formData.append('password', password);
+            formData.append('anos_experiencia', anos_experiencia);
+            formData.append('especialidad', especialidad);
+            formData.append('foto', foto);
+
+            try {
+                // Enviar una solicitud POST al servidor con los datos del nuevo skater
+                const response = await axios.post("http://localhost:10000/skaters", formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                $(".register")[0].reset();
+                alert("Skater registrado exitosamente");
+                window.location.href = "/";
+
+            } catch (e) {
+                console.error("Error al registrar skater:", e);
+                alert("Algo salió mal al registrar el skater");
+            }
+        });
+</script>
+{{!-- $(".register").on("submit", async function(event) {
+            event.preventDefault();     
             const email = $(".register #txtEmail").val();
             const nombre = $(".register #txtNombre").val();
             const password = $(".register #txtPassword1").val();
-            const experiencia = $(".register #txtExperiencia").val();
+            const anos_experiencia = $(".register #txtExperiencia").val();
             const especialidad = $(".register #txtEspecialidad").val();
+            const foto = $(".register #foto").val();
             try {
-                // Enviar una solicitud POST al servidor con los datos del nuevo skater
                 const response = await axios.post("http://localhost:10000/skaters", {
                     email: email,
                     nombre: nombre,
                     password: password,
-                    anos_experiencia: experiencia,
-                    especialidad: especialidad
+                    anos_experiencia: anos_experiencia,
+                    especialidad: especialidad,
+                    foto: foto
                 });
                 await getSkaters();
 
@@ -104,5 +143,4 @@
                 console.error("Error al registrar skater:", e);
                 alert("Algo salió mal al registrar el skater");
             }
-        });
-</script>
+        }); --}}

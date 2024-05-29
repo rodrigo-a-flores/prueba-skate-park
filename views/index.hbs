@@ -18,8 +18,8 @@
         <tbody class="skaters">                
         </tbody>
     </table>
-    <a href="login.html">Iniciar Sesión</a> |
-    <a href="registro.html">Registrarme</a>
+    <a href="/login">Iniciar Sesión</a> |
+    <a href="/registro">Registrarme</a>
 </div>
 
 <script>
@@ -34,7 +34,7 @@
                     $(".skaters").append(`
                         <tr>
                             <td>${skater.id}</td>
-                            <td><img src="${skater.foto}" alt="Foto de ${skater.nombre}" width="100" name="foo" type="file"></td>
+                            <td><img src="/img/${skater.foto}" alt="Foto de ${skater.nombre}" width="100" name="foto" type="file"></td>
                             <td>${skater.nombre}</td>
                             <td>${skater.anos_experiencia}</td>
                             <td>${skater.especialidad}</td>
@@ -46,7 +46,7 @@
                     $(".skaters").append(`
                     <tr>
                         <td>${skater.id}</td>
-                        <td><img src="${skater.foto}" alt="Foto de ${skater.nombre}" width="100"></td>
+                        <td><img src="/img/${skater.foto}" alt="Foto de ${skater.nombre}" width="100"></td>
                         <td>${skater.nombre}</td>
                         <td>${skater.anos_experiencia}</td>
                         <td>${skater.especialidad}</td>

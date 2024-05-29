@@ -1,6 +1,9 @@
 import bcrypt from "bcrypt";
 import pool from "./config.js";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const secretKey = process.env.secretKey;
 
 const getSkaters = async (req, res) => {
@@ -23,12 +26,30 @@ const getSkaters = async (req, res) => {
 const createSkaters = async (req, res) => {
     const { email, nombre, password, anos_experiencia, especialidad } = req.body;
     const estado = false;
+
+    // Verifica si todos los campos están presentes
+    if (!email || !nombre || !password || !anos_experiencia || !especialidad) {
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    // Verifica si hay un archivo en la solicitud
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).json({ message: 'No files were uploaded.' });
+    }
+
+    // Nombre del archivo subido
+    const image = req.files.foto;
+    const uploadPath = path.join(__dirname, '../public/img', image.name);
+
     try {
+        // Mueve el archivo a la carpeta public/img
+        await image.mv(uploadPath);
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const query = {
-            text: `INSERT INTO skaters (email, nombre, password, anos_experiencia, especialidad, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-            values: [email, nombre, hashedPassword, anos_experiencia, especialidad, estado]
+            text: `INSERT INTO skaters (email, nombre, password, anos_experiencia, especialidad, estado, foto) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+            values: [email, nombre, hashedPassword, anos_experiencia, especialidad, estado, image.name]
         };
 
         const response = await pool.query(query);
@@ -38,6 +59,24 @@ const createSkaters = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred while creating the skater', error: error.message });
     }
 };
+// const createSkaters = async (req, res) => {
+//     const { email, nombre, password, anos_experiencia, especialidad } = req.body;
+//     const estado = false;
+//     try {
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         const query = {
+//             text: `INSERT INTO skaters (email, nombre, password, anos_experiencia, especialidad, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+//             values: [email, nombre, hashedPassword, anos_experiencia, especialidad, estado]
+//         };
+
+//         const response = await pool.query(query);
+//         return res.status(201).json({ message: 'Skater created successfully', skater: response.rows[0] });
+//     } catch (error) {
+//         console.error('Database insertion error:', error);
+//         return res.status(500).json({ message: 'An error occurred while creating the skater', error: error.message });
+//     }
+// };
 const updateSkaters = async (req, res) => {
     const {  nombre, password, anos_experiencia, especialidad } = req.body;
     const { id } = req.params;
@@ -92,53 +131,7 @@ const updateSkaterStatus = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred while updating skater status', error: error.message });
     }
 };
-// const loginSkater = async (req, res) => {
-//     const { email, password } = req.body;
-//     try {
-//         const query = {
-//             text: 'SELECT * FROM skaters WHERE email = $1',
-//             values: [email]
-//         };
-//         const result = await pool.query(query);
 
-//         if (result.rows.length === 0) {
-//             return res.status(401).json({ message: 'Invalid email or password' });
-//         }
-//         const skater = result.rows[0];
-//         const isMatch = await bcrypt.compare(password, skater.password);
-
-//         if (!isMatch) {
-//             return res.status(401).json({ message: 'Invalid email or password' });
-//         }
-
-//         const token = jwt.sign({ email: skater.email, id: skater.id, tipo_usuario: skater.tipo_usuario }, secretKey, { expiresIn: '1h' });
-//         res.cookie('jwt', token, {
-//             httpOnly: true,
-//             secure: true,
-//             sameSite: 'Strict'
-//         });
-
-//         if (skater.tipo_usuario === 'admin') {
-//             const skaters = await getSkaters();
-//             res.render('admin', { skaters, user: skater.nombre, tipo_usuario: skater.tipo_usuario });
-//         } else if (skater.tipo_usuario === 'user') {
-//             res.render('datos', {
-//                 skater: {
-//                     email: skater.email,
-//                     nombre: skater.nombre,
-//                     anos_experiencia: skater.anos_experiencia,
-//                     especialidad: skater.especialidad,
-//                     tipo_usuario: skater.tipo_usuario
-//                 },
-//                 user: skater.nombre,
-//                 tipo_usuario: skater.tipo_usuario
-//             });
-//         }
-//     } catch (error) {
-//         console.error('Error during login:', error);
-//         return res.status(500).json({ message: 'An error occurred while logging in', error: error.message });
-//     }
-// };
 const loginSkater = async (req, res) => {
     const { email, password } = req.body;
     try {

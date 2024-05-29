@@ -6,18 +6,20 @@ import jwt from 'jsonwebtoken';
 import router from './Controllers/User.js';
 import { fileURLToPath } from 'url';
 import { getSkaters } from './Persistance/User.js';
+import fileUpload from 'express-fileupload';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT ?? 10000;
 const app = express();
-const secretKey = process.env.secretKey; // AsegÃºrate de usar tu clave secreta
+const secretKey = process.env.secretKey;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
-app.use(cookieParser()); // Necesario para leer cookies
-
-// Middleware para verificar la cookie JWT
+app.use(cookieParser());
+app.use(fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 },
+}));
 const checkAuth = (req, res, next) => {
     const token = req.cookies.jwt;
     if (token) {
@@ -37,7 +39,7 @@ const checkAuth = (req, res, next) => {
     }
 };
 
-app.use(checkAuth); // Usar el middleware para todas las rutas
+app.use(checkAuth);
 
 app.set('view engine', 'hbs');
 app.engine(

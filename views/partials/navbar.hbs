@@ -18,24 +18,16 @@
                         <li class="nav-item ">
                             <a class="nav-link" href="/admin">Admin</a>
                         </li>
-                    {{/if}}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Hola {{user.email}}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <form action="/users/logout" method="post">
-                                <button type="submit"><li><a class="dropdown-item"><i class="fa fa-sign-out"></i>Logout</a></li></button>
-                            </form>                        
-                        </ul>
-                    </li>
+                    {{/if}}    
+                        <li class="nav-item ">
+                            <a class="nav-link" href="/users/logout">LogOut</a>
+                        </li>             
                 {{else}}
                     <li class="nav-item ">
                         <a class="nav-link" href="/registro">Registrar</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="/login">Iniciar sesiÃ³n</a>
+                        <a class="nav-link" href="/login">Iniciar sesión</a>
                     </li>            
                 {{/if}}
             </ul>
