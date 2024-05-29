@@ -17,11 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     
 
-    {{#if user}}
-        {{> navbarAdmin user=user}}
-    {{else}}
-        {{> navbarUser}}
-    {{/if}}
+    {{>navbar}}
     
     <div class="container">
         {{{body}}}

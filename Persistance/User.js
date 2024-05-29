@@ -92,6 +92,53 @@ const updateSkaterStatus = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred while updating skater status', error: error.message });
     }
 };
+// const loginSkater = async (req, res) => {
+//     const { email, password } = req.body;
+//     try {
+//         const query = {
+//             text: 'SELECT * FROM skaters WHERE email = $1',
+//             values: [email]
+//         };
+//         const result = await pool.query(query);
+
+//         if (result.rows.length === 0) {
+//             return res.status(401).json({ message: 'Invalid email or password' });
+//         }
+//         const skater = result.rows[0];
+//         const isMatch = await bcrypt.compare(password, skater.password);
+
+//         if (!isMatch) {
+//             return res.status(401).json({ message: 'Invalid email or password' });
+//         }
+
+//         const token = jwt.sign({ email: skater.email, id: skater.id, tipo_usuario: skater.tipo_usuario }, secretKey, { expiresIn: '1h' });
+//         res.cookie('jwt', token, {
+//             httpOnly: true,
+//             secure: true,
+//             sameSite: 'Strict'
+//         });
+
+//         if (skater.tipo_usuario === 'admin') {
+//             const skaters = await getSkaters();
+//             res.render('admin', { skaters, user: skater.nombre, tipo_usuario: skater.tipo_usuario });
+//         } else if (skater.tipo_usuario === 'user') {
+//             res.render('datos', {
+//                 skater: {
+//                     email: skater.email,
+//                     nombre: skater.nombre,
+//                     anos_experiencia: skater.anos_experiencia,
+//                     especialidad: skater.especialidad,
+//                     tipo_usuario: skater.tipo_usuario
+//                 },
+//                 user: skater.nombre,
+//                 tipo_usuario: skater.tipo_usuario
+//             });
+//         }
+//     } catch (error) {
+//         console.error('Error during login:', error);
+//         return res.status(500).json({ message: 'An error occurred while logging in', error: error.message });
+//     }
+// };
 const loginSkater = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -118,10 +165,18 @@ const loginSkater = async (req, res) => {
             sameSite: 'Strict'
         });
 
-        if (skater.tipo_usuario === 'admin') {
+        const user = {
+            email: skater.email,
+            nombre: skater.nombre,
+            tipo_usuario: skater.tipo_usuario
+        };
+        
+        const isAdmin = skater.tipo_usuario === 'admin';
+
+        if (isAdmin) {
             const skaters = await getSkaters();
-            res.render('admin', { skaters, user: skater.nombre, tipo_usuario: skater.tipo_usuario });
-        } else if (skater.tipo_usuario === 'user') {
+            res.render('admin', { skaters, user: skater.nombre, isAdmin });
+        } else {
             res.render('datos', {
                 skater: {
                     email: skater.email,
@@ -131,7 +186,7 @@ const loginSkater = async (req, res) => {
                     tipo_usuario: skater.tipo_usuario
                 },
                 user: skater.nombre,
-                tipo_usuario: skater.tipo_usuario
+                isAdmin
             });
         }
     } catch (error) {
